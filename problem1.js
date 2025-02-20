@@ -20,13 +20,17 @@ const path = require("path");
 
 const dirPath = path.join(__dirname, "random_json_files");
 
-createDirectory(() => {
-  createFile(() => {
-    setTimeout(() => {
-      deleteFile();
-    }, 10000);
+module.exports = callBackHell;
+
+function callBackHell() {
+  createDirectory(() => {
+    createFile(() => {
+      setTimeout(() => {
+        deleteFile();
+      }, 10000);
+    });
   });
-});
+}
 
 function createDirectory(callBack) {
   fs.mkdir(dirPath, { recursive: true }, (err) => {

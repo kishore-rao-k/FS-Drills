@@ -12,8 +12,28 @@
 const fs = require("fs");
 const path = require("path");
 
+module.exports = callBackHell;
+
+function callBackHell() {
+  getReadFile(function (fileContent) {
+    createFile(fileContent, function () {
+      readUpperCase(function (fileContent) {
+        createFileForLowerCase(fileContent, function () {
+          readSortedFile(function (fileContent) {
+            createFileForSortedText(fileContent, function () {
+              extractFileName(function (fileContent) {
+                deleteFile(fileContent);
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+}
+
 function getReadFile(callback) {
-  fs.readFile("lipsum.txt", "utf8", (err, data) => {
+  fs.readFile("../lipsum.txt", "utf-8", (err, data) => {
     if (err) {
       console.log(err.message);
       return;
@@ -31,7 +51,8 @@ function createFile(content, callback) {
       return;
     }
     console.log("uppercase.txt is created");
-    callback("uppercase.txt");
+    toStoreFileName("uppercase.txt");
+    callback();
   });
 }
 
@@ -47,7 +68,7 @@ function toStoreFileName(filename) {
 }
 
 function readUpperCase(callBack) {
-  fs.readFile("uppercase.txt", "utf-8", (err, upperCaseFile) => {
+  fs.readFile("../uppercase.txt", "utf-8", (err, upperCaseFile) => {
     if (err) {
       console.log(err.message);
       return;
@@ -65,10 +86,12 @@ function createFileForLowerCase(lowercaseFile, callback) {
       return;
     }
     console.log("lowercase.txt is created");
-    callback("lowercase.txt");
+
+    appendFileName("lowercase.txt");
+    callback();
   });
 }
-function StoreFileName(filename) {
+function appendFileName(filename) {
   let filePath = path.join(__dirname, "filenames.txt");
   fs.appendFile(filePath, filename + "\n", (err) => {
     if (err) {
@@ -79,8 +102,8 @@ function StoreFileName(filename) {
   });
 }
 
-function readNewFile(callBack) {
-  fs.readFile("lowercase.txt", "utf-8", (err, filename) => {
+function readSortedFile(callBack) {
+  fs.readFile("../lowercase.txt", "utf-8", (err, filename) => {
     if (err) {
       console.log(err.message);
       return;
@@ -104,22 +127,13 @@ function createFileForSortedText(content, callback) {
       return;
     }
     console.log("sortedText.txt is created");
-    callback("sortedText.txt");
-  });
-}
-function StoreFileName(filename) {
-  let filePath = path.join(__dirname, "filenames.txt");
-  fs.appendFile(filePath, filename + "\n", (err) => {
-    if (err) {
-      console.log(err.message);
-      return;
-    }
-    console.log("file name is stored in filename.txt");
+    appendFileName("sortedText.txt");
+    callback();
   });
 }
 
 function extractFileName(callback) {
-  fs.readFile("filenames.txt", "utf8", (err, data) => {
+  fs.readFile("../filenames.txt", "utf8", (err, data) => {
     if (err) {
       console.log(err.message);
       return;
@@ -137,7 +151,7 @@ function deleteFile(fileNameArray) {
   for (let i = 0; i < fileNameArray.length; i++) {
     let filename = fileNameArray[i];
     let filePath = path.join(__dirname, filename);
-    fs.unlink(filePath, (err) => {
+    fs.unlink(`${filePath}`, (err) => {
       if (err) {
         console.log(err.message);
         return;
@@ -160,6 +174,6 @@ function deleteFile(fileNameArray) {
 //   createFileForSortedText(sortedData, StoreFileName);
 // });
 
-extractFileName((data) => {
-  deleteFile(data);
-});
+// extractFileName((data) => {
+//     deleteFile(data);
+//   });
