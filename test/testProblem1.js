@@ -1,1 +1,3 @@
-const fs = require("fs");
+const callBackHell = require("../problem1.js");
+
+callBackHell();
