@@ -20,7 +20,7 @@ const path = require("path");
 
 const dirPath = path.join(__dirname, "random_json_files");
 
-function callBackHell() {
+function consumePromise() {
   createDirectory()
     .then(() => {
       return createFile();
@@ -33,7 +33,7 @@ function callBackHell() {
     });
 }
 
-callBackHell();
+consumePromise();
 
 function createDirectory() {
   return fs
