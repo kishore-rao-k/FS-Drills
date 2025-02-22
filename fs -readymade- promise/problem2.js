@@ -1,166 +1,35 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const lipsumFilePath = path.join(__dirname, "lipsum.txt");
-const filenamesPath = path.join(__dirname, "filename.txt");
-const uppercaseFilePath = path.join(__dirname, `uppercase.txt`);
-const lowercaseFilePath = path.join(__dirname, `lowercase.txt`);
-const sortedTextFilePath = path.join(__dirname, `sortedText.txt`);
+const filePaths = {
+  lipsumFilePath: path.join(__dirname, "lipsum.txt"),
+  uppercaseFilePath: path.join(__dirname, "uppercase.txt"),
+  lowercaseFilePath: path.join(__dirname, "lowercase.txt"),
+  sortedTextFilePath: path.join(__dirname, "sortedText.txt"),
+  filenamesPath: path.join(__dirname, "filename.txt"),
+};
 
-consumePromise();
-
-function consumePromise() {
-  getReadFile()
-    .then(function (fileContent) {
-      return createFile(fileContent);
-    })
-    .then(function () {
-      return readUpperCase();
-    })
-    .then(function (lowercaseFile) {
-      return createFileForLowerCase(lowercaseFile);
-    })
-    .then(function () {
-      return readSortedFile();
-    })
-    .then(function (fileContent) {
-      return createFileForSortedText(fileContent);
-    })
-    .then(function () {
-      return extractFileName();
-    })
-    .then(function (fileNameArray) {
-      return deleteFile(fileNameArray);
-    })
-    .catch(function (err) {
-      console.err(err.message);
-    });
+function readFileContent(fileKey) {
+  const filePath = filePaths[fileKey];
+  return fs.readFile(filePath, "utf-8").catch(handleError);
 }
 
-function getReadFile() {
+function writeFileContent(fileKey, content) {
+  const filePath = filePaths[fileKey];
   return fs
-    .readFile(lipsumFilePath, "utf-8")
-    .then((data) => {
-      console.log(data);
-      return data;
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
+    .writeFile(filePath, content)
+    .then(() => console.log(`${fileKey} is created`))
+    .catch(handleError);
 }
 
-function createFile(content) {
-  let uppercaseContent = content.toUpperCase();
+function appendFileName(fileKey, content) {
+  const filePath = filePaths[fileKey];
   return fs
-    .writeFile(uppercaseFilePath, uppercaseContent)
-    .then(() => {
-      console.log("uppercase.txt is created");
-      return toStoreFileName("uppercase.txt");
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
+    .appendFile(filePath, content + "\n")
+    .then(() => console.log(`${fileKey} is updated`))
+    .catch(handleError);
 }
 
-function toStoreFileName(filename) {
-  return fs
-    .writeFile(filenamesPath, filename + "\n")
-    .then(() => {
-      console.log("file name is stored in filename.txt");
-    })
-    .catch((err) => {
-      console.log(err);
-      throw err;
-    });
-}
-
-function readUpperCase() {
-  return fs
-    .readFile(uppercaseFilePath, "utf-8")
-    .then((upperCaseFile) => {
-      let lowercase = upperCaseFile.toLowerCase().split(".").join(".\n");
-      return lowercase;
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
-}
-
-function createFileForLowerCase(lowercaseFile) {
-  return fs
-    .writeFile(lowercaseFilePath, lowercaseFile)
-    .then(() => {
-      console.log("lowercase.txt is created");
-
-      return appendFileName("lowercase.txt");
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
-}
-function appendFileName(filename) {
-  return fs
-    .appendFile(filenamesPath, filename + "\n")
-    .then(() => {
-      console.log("file name is stored in filename.txt");
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
-}
-
-function readSortedFile() {
-  return fs
-    .readFile(lowercaseFilePath, "utf-8")
-    .then((filename) => {
-      let sortedContent = filename
-        .trim()
-        .split(/\s+/)
-        .filter((word) => word.length)
-        .sort()
-        .join(" ");
-      return sortedContent;
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
-}
-
-function createFileForSortedText(content) {
-  return fs
-    .writeFile(sortedTextFilePath, content)
-    .then(() => {
-      console.log("sortedText.txt is created");
-      appendFileName("sortedText.txt");
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
-}
-
-function extractFileName() {
-  return fs
-    .readFile(filenamesPath, "utf8")
-    .then((data) => {
-      let fileNameArray = data
-        .trim()
-        .split("\n")
-        .map((name) => name.trim())
-        .filter((fName) => fName.length > 0);
-      return fileNameArray;
-    })
-    .catch((err) => {
-      console.log(err.message);
-      throw err;
-    });
-}
 function deleteFile(fileNameArray) {
   return Promise.all(
     fileNameArray.map((fileName) => {
@@ -168,12 +37,65 @@ function deleteFile(fileNameArray) {
       return fs
         .unlink(filePath)
         .then(() => {
-          console.log("File is deleted");
+          console.log(`File ${fileName} is deleted`);
         })
-        .catch((err) => {
-          console.log(err.message);
-          throw err;
-        });
+        .catch(handleError);
     })
   );
 }
+
+function handleError(err) {
+  console.log(err.message);
+  throw err;
+}
+
+function promis() {
+  readFileContent("lipsumFilePath")
+    .then(function (data) {
+      console.log(data);
+      return writeFileContent("uppercaseFilePath", data.toUpperCase());
+    })
+    .then(function () {
+      return writeFileContent("filenamesPath", "uppercase.txt\n");
+    })
+    .then(function () {
+      return readFileContent("uppercaseFilePath");
+    })
+    .then(function (upperCaseData) {
+      let lowerCaseContent = upperCaseData.toLowerCase().split(".").join(".\n");
+      return writeFileContent("lowercaseFilePath", lowerCaseContent);
+    })
+    .then(function () {
+      return appendFileName("filenamesPath", "lowercase.txt");
+    })
+    .then(function () {
+      return readFileContent("lowercaseFilePath");
+    })
+    .then(function (lowerCaseData) {
+      let sortedContent = lowerCaseData
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length)
+        .sort()
+        .join(" ");
+      return writeFileContent("sortedTextFilePath", sortedContent);
+    })
+    .then(function () {
+      return appendFileName("filenamesPath", "sortedText.txt");
+    })
+    .then(function () {
+      return readFileContent("filenamesPath");
+    })
+    .then(function (filenamesContent) {
+      let fileNameArray = filenamesContent
+        .trim()
+        .split("\n")
+        .map((name) => name.trim())
+        .filter((fName) => fName.length > 0);
+      return deleteFile(fileNameArray);
+    })
+
+    .catch(handleError);
+}
+
+promis();
