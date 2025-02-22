@@ -17,8 +17,9 @@
 
 const fs = require("fs/promises");
 const path = require("path");
-
 const dirPath = path.join(__dirname, "random_json_files");
+
+consumePromise();
 
 function consumePromise() {
   createDirectory()
@@ -32,8 +33,6 @@ function consumePromise() {
       console.log(error);
     });
 }
-
-consumePromise();
 
 function createDirectory() {
   return fs
@@ -74,41 +73,3 @@ function deleteFile() {
       });
   }
 }
-
-// console.log(__dirname);
-// fs.mkdir(dirPath, { recursive: true }, (err) => {
-//   //file-5.txt
-//   if (err) {
-//     console.log("Directory is not creted");
-//   } else {
-//     console.log("Directory is creted");
-//     let count = 5;
-//     for (let i = 1; i <= count; i++) {
-//       let filePath = path.join(dirPath, `file-${i}.txt`);
-//       // console.log(filePath);
-//       fs.writeFile(filePath, "please enter data here", (err) => {
-//         if (err) {
-//           console.log("File is not created");
-//         } else {
-//           console.log("File is created");
-//            fs.unlink(filePath,(err)=>{
-//             if(err){
-//                 console.log("file is not deleted")
-//             }else{
-//                 console.log("file is deleted");
-//             }
-//            });
-
-//         }
-//       });
-//     }
-
-//     fs.rmdir(dirPath, (err) => {
-//       if (err) {
-//         console.log("Directory is not deleted");
-//       } else {
-//         console.log("Directory is deleted");
-//       }
-//     });
-//   }
-// });

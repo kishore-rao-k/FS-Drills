@@ -9,45 +9,7 @@ const filePaths = {
   filenamesPath: path.join(__dirname, "filename.txt"),
 };
 
-function readFileContent(fileKey) {
-  const filePath = filePaths[fileKey];
-  return fs.readFile(filePath, "utf-8").catch(handleError);
-}
-
-function writeFileContent(fileKey, content) {
-  const filePath = filePaths[fileKey];
-  return fs
-    .writeFile(filePath, content)
-    .then(() => console.log(`${fileKey} is created`))
-    .catch(handleError);
-}
-
-function appendFileName(fileKey, content) {
-  const filePath = filePaths[fileKey];
-  return fs
-    .appendFile(filePath, content + "\n")
-    .then(() => console.log(`${fileKey} is updated`))
-    .catch(handleError);
-}
-
-function deleteFile(fileNameArray) {
-  return Promise.all(
-    fileNameArray.map((fileName) => {
-      let filePath = path.join(__dirname, fileName);
-      return fs
-        .unlink(filePath)
-        .then(() => {
-          console.log(`File ${fileName} is deleted`);
-        })
-        .catch(handleError);
-    })
-  );
-}
-
-function handleError(err) {
-  console.log(err.message);
-  throw err;
-}
+promis();
 
 function promis() {
   readFileContent("lipsumFilePath")
@@ -98,4 +60,42 @@ function promis() {
     .catch(handleError);
 }
 
-promis();
+function readFileContent(fileKey) {
+  const filePath = filePaths[fileKey];
+  return fs.readFile(filePath, "utf-8").catch(handleError);
+}
+
+function writeFileContent(fileKey, content) {
+  const filePath = filePaths[fileKey];
+  return fs
+    .writeFile(filePath, content)
+    .then(() => console.log(`${fileKey} is created`))
+    .catch(handleError);
+}
+
+function appendFileName(fileKey, content) {
+  const filePath = filePaths[fileKey];
+  return fs
+    .appendFile(filePath, content + "\n")
+    .then(() => console.log(`${fileKey} is updated`))
+    .catch(handleError);
+}
+
+function deleteFile(fileNameArray) {
+  return Promise.all(
+    fileNameArray.map((fileName) => {
+      let filePath = path.join(__dirname, fileName);
+      return fs
+        .unlink(filePath)
+        .then(() => {
+          console.log(`File ${fileName} is deleted`);
+        })
+        .catch(handleError);
+    })
+  );
+}
+
+function handleError(err) {
+  console.log(err.message);
+  throw err;
+}
