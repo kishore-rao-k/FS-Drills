@@ -19,19 +19,18 @@ const fs = require("fs/promises");
 const path = require("path");
 const dirPath = path.join(__dirname, "random_json_files");
 
-consumePromise();
-
-function consumePromise() {
+processFiles();
+const n = 2;
+function processFiles() {
   createDirectory()
-    .then(() => {
-      return createFile();
+    .then(function () {
+      return createFile(n);
     })
-    .then(() => {
-      deleteFile();
+    .then(function () {
+      //If deleteFile(n) doesn't return Promise.all(deletedFileArray), the .catch(handleError) in processFiles() won't catch errors during the deletion process.
+      return deleteFile(n);
     })
-    .catch((error) => {
-      console.log(error);
-    });
+    .catch(handleError);
 }
 
 function createDirectory() {
@@ -40,36 +39,41 @@ function createDirectory() {
     .then(() => {
       console.log("Directory is created");
     })
-    .catch((error) => {
-      console.log(error);
-    });
+    .catch(handleError);
 }
-function createFile() {
-  let count = 5;
+function createFile(count) {
+  let createdFilesArray = [];
   for (let i = 1; i <= count; i++) {
     let string = "please Enter the data here";
     let filePath = path.join(dirPath, `file-${i}.json`);
-    fs.writeFile(filePath, JSON.stringify(string))
-      .then(() => {
-        // console.log("File is created");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    console.log("File is created");
+    createdFilesArray.push(
+      fs
+        .writeFile(filePath, JSON.stringify(string))
+        .then(() => {
+          console.log("File is created");
+        })
+        .catch(handleError)
+    );
   }
+  return Promise.all(createdFilesArray);
 }
 
-function deleteFile() {
-  let count = 5;
+function deleteFile(count) {
+  let deletedFileArray = [];
   for (let i = 1; i <= count; i++) {
     let filePath = path.join(dirPath, `file-${i}.json`);
-    fs.unlink(filePath)
-      .then(() => {
-        console.log("File is deleted");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    deletedFileArray.push(
+      fs
+        .unlink(filePath)
+        .then(() => {
+          console.log("File is deleted");
+        })
+        .catch(handleError)
+    );
   }
+  return Promise.all(deletedFileArray);
+}
+
+function handleError(error) {
+  console.error(error.message);
 }
